@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import { Route,Routes, useNavigate } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import { Route,Routes, useNavigate, useLocation } from 'react-router-dom';
 import {
   SunOutlined,
   AppstoreOutlined,
@@ -7,7 +7,8 @@ import {
   SoundOutlined,
   UserOutlined,
   HourglassOutlined,
-  StarOutlined
+  StarOutlined,
+  SettingOutlined
 } from '@ant-design/icons';
 import {  Layout, Menu, Typography } from 'antd';
 import Dashboard from './Components/Dashboard/Dashboard';
@@ -17,6 +18,7 @@ import SleepQuality from './Components/SleepQuality/SleepQuality';
 import WakeupMethod from './Components/WakeupMethod/WakeupMethod';
 import ScheduleImportance from './Components/ScheduleImportance/ScheduleImportance';
 import FatigueLevel from './Components/FatigueLevel/FatigueLevel';
+import Settings from './Components/Settings/Settings';
 
 const { Header, Sider } = Layout;
 const { Title } = Typography;
@@ -24,8 +26,18 @@ const { Title } = Typography;
 function App() {
   const [itemName, setItemName] = useState("Dashboard");
   const [description, setDescription] = useState("Overview of the Fuzzy System");
+  const [defaultSelectedKeys,setDefaultKey] = useState<string[]>([])
 
   const navigate = useNavigate();
+
+  const location = useLocation();
+
+
+  useEffect(()=>{
+    setItemName(items.find((elm) => elm!.target === location.pathname)!.label)
+    setDescription(items.find((elm) => elm!.target === location.pathname)!.description)
+    defaultSelectedKeys.push(items.find((elm) => elm!.target === location.pathname)!.key)
+  },[location.pathname])
   
   const items=[
     {
@@ -66,8 +78,8 @@ function App() {
     {
       key: '6',
       icon: <UserOutlined />,
-      label: 'Mood',
-      description: 'Fuzzy Variables & Membership Functions of Mood',
+      label: 'Physical Well-being',
+      description: 'Fuzzy Variables & Membership Functions of Physical Well-being',
       target:'/mood'
     },
     {
@@ -76,6 +88,13 @@ function App() {
       label: 'Weather',
       description: 'Fuzzy Variables & Membership Functions of Weather',
       target:'/weather'
+    },
+    {
+      key: '8',
+      icon: <SettingOutlined />,
+      label: 'Settings',
+      description: 'Input Your Static Variables To The System',
+      target:'/settings'
     }
   ];
 
@@ -90,13 +109,13 @@ function App() {
 
   return (
     <div className="App">
-      <Layout style={{height:"100vh"}} >
+      <Layout style={{minHeight:"100vh"}} >
       <Sider trigger={null} collapsible={false} collapsed={true} style={{background:'white'}}>
         <Menu
           style={{marginTop:100}}
           theme="light"
           mode="inline"
-          defaultSelectedKeys={['1']}
+          defaultSelectedKeys={defaultSelectedKeys}
           items={items}
           selectable
           onClick={handleMenuClick}
@@ -115,6 +134,7 @@ function App() {
           <Route path="/wakeup-method"  element={<WakeupMethod/>}/>
           <Route path="/schedule-importance"  element={<ScheduleImportance/>}/>
           <Route path="/fatigue-level"  element={<FatigueLevel/>}/>
+          <Route path="/settings"  element={<Settings/>}/>
         </Routes>
       </Layout>
     </Layout>
