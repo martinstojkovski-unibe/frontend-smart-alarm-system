@@ -12,13 +12,13 @@ import {
 } from '@ant-design/icons';
 import {  Layout, Menu, Typography } from 'antd';
 import Dashboard from './Components/Dashboard/Dashboard';
-import Mood from './Components/Mood/Mood';
 import Weather from './Components/Weather/Weather';
 import SleepQuality from './Components/SleepQuality/SleepQuality';
 import WakeupMethod from './Components/WakeupMethod/WakeupMethod';
 import ScheduleImportance from './Components/ScheduleImportance/ScheduleImportance';
 import FatigueLevel from './Components/FatigueLevel/FatigueLevel';
 import Settings from './Components/Settings/Settings';
+import PhysicalWellBeing from "./Components/PhysicalWellBeing/PhysicalWellBeing";
 
 const { Header, Sider } = Layout;
 const { Title } = Typography;
@@ -44,43 +44,43 @@ function App() {
       key: '1',
       icon:<AppstoreOutlined />,
       label: 'Dashboard',
-      description: 'Overview of the Fuzzy System',
+      description: '',
       target:'/',
     },
     {
       key: '2',
       icon: <StarOutlined />,
       label: 'Sleep Quality',
-      description: 'Fuzzy Variables & Membership Functions of Sleep Quality',
+      description: '',
       target:'/sleep-quality'
     },
     {
       key: '3',
       icon: <HourglassOutlined />,
       label: 'Fatigue Level',
-      description: 'Fuzzy Variables & Membership Functions of Fatigue Level',
+      description: '',
       target:'/fatigue-level'
     },
     {
       key: '4',
       icon: <ScheduleOutlined />,
       label: 'Schedule Importance',
-      description: 'Fuzzy Variables & Membership Functions of Schedule Importance',
+      description: '',
       target:'/schedule-importance'
     },
     {
       key: '5',
       icon: <SoundOutlined />,
       label: 'Wakeup Method',
-      description: 'Fuzzy Variables & Membership Functions of Wakeup Method',
+      description: '',
       target:'/wakeup-method'
     },
     {
       key: '6',
       icon: <UserOutlined />,
       label: 'Physical Well-being',
-      description: 'Fuzzy Variables & Membership Functions of Physical Well-being',
-      target:'/mood'
+      description: '',
+      target:'/physical-well-being'
     },
     {
       key: '7',
@@ -128,7 +128,7 @@ function App() {
         </Header>
         <Routes>        
           <Route path="/"  element={<Dashboard/>} />
-          <Route path="/mood"  element={<Mood />}/>
+          <Route path="/physical-well-being"  element={<PhysicalWellBeing />}/>
           <Route path="/weather"  element={<Weather/>}/>
           <Route path="/sleep-quality"  element={<SleepQuality/>}/>
           <Route path="/wakeup-method"  element={<WakeupMethod/>}/>

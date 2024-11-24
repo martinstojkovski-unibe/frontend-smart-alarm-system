@@ -1,5 +1,5 @@
 .schedule-importance-container {
-    max-width: 1000px; /* Maximum container width for alignment */
+    max-width: 1000px;
     margin: 0 auto;
     font-family: Arial, sans-serif;
     padding: 20px;
@@ -18,7 +18,7 @@ h1 {
 .slider-container {
     margin: 20px auto;
     text-align: left;
-    max-width: 900px; /* Matches the width of the graph container */
+    max-width: 900px;
 }
 
 label {
@@ -29,7 +29,7 @@ label {
 }
 
 input[type="range"] {
-    width: 100%; /* Ensures the slider takes up full width of container */
+    width: 100%;
     margin-top: 10px;
 }
 
@@ -39,7 +39,7 @@ input[type="range"] {
     background: white;
     border-radius: 8px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-    max-width: 900px; /* Matches the width of the slider */
+    max-width: 900px;
 }
 
 .chart-container h2 {
@@ -50,5 +50,5 @@ input[type="range"] {
 
 .chart-container canvas {
     width: 100%;
-    height: 450px; /* Set a larger height for consistency */
+    height: 450px;
 }

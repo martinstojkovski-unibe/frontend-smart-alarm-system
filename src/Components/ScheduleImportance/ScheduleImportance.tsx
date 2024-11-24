@@ -122,7 +122,7 @@ const ScheduleImportance: React.FC = () => {
 
     const chartOptions = {
         responsive: true,
-        maintainAspectRatio: false, // Prevent Chart.js from auto-resizing
+        maintainAspectRatio: false,
         plugins: {
             title: {
                 display: true,
