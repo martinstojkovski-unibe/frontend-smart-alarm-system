@@ -1,16 +1,8 @@
-import React, { useState } from "react";
-import { Line } from "react-chartjs-2";
-import {
-    Chart as ChartJS,
-    LineElement,
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    Title,
-} from "chart.js";
-import "./PhysicalWellBeing.css";
+import React, {useState} from "react";
+import {Card, Slider, Typography} from "antd";
+import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
 
-ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Title);
+const {Title, Text} = Typography;
 
 const PhysicalWellBeing: React.FC = () => {
     const [physicalWellBeing, setPhysicalWellBeing] = useState(5);
@@ -21,103 +13,48 @@ const PhysicalWellBeing: React.FC = () => {
         x <= 3 ? 0 : x <= 6 ? (x - 3) / 3 : x <= 7 ? (7 - x) / 1 : 0;
     const healthy = (x: number) => (x <= 6 ? 0 : x <= 10 ? (x - 6) / 4 : 1);
 
-    const membershipData = Array.from({ length: 101 }, (_, i) => {
+    const membershipData = Array.from({length: 101}, (_, i) => {
         const x = i / 10; // Increment by 0.1
         return {
             x,
             sick: sick(x),
             neutral: neutral(x),
             healthy: healthy(x),
+            current: Math.abs(x - physicalWellBeing) < 0.1 ? 1 : null,
         };
     });
 
-    const chartData = {
-        labels: membershipData.map((data) => data.x),
-        datasets: [
-            {
-                label: "Sick",
-                data: membershipData.map((data) => data.sick),
-                borderColor: "rgba(255, 99, 132, 1)",
-                borderWidth: 2,
-                tension: 0.4,
-            },
-            {
-                label: "Neutral",
-                data: membershipData.map((data) => data.neutral),
-                borderColor: "rgba(54, 162, 235, 1)",
-                borderWidth: 2,
-                tension: 0.4,
-            },
-            {
-                label: "Healthy",
-                data: membershipData.map((data) => data.healthy),
-                borderColor: "rgba(75, 192, 192, 1)",
-                borderWidth: 2,
-                tension: 0.4,
-            },
-            {
-                label: `Current Value: ${physicalWellBeing}`,
-                data: membershipData.map((data) =>
-                    Math.abs(data.x - physicalWellBeing) < 0.1 ? 1 : 0
-                ),
-                borderColor: "rgba(255, 206, 86, 1)",
-                borderWidth: 2,
-                pointRadius: 3,
-                tension: 0,
-            },
-        ],
-    };
-
-    const chartOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            title: {
-                display: true,
-                text: "Membership Functions of Physical Well-Being",
-            },
-        },
-        scales: {
-            x: {
-                title: {
-                    display: true,
-                    text: "Physical Well-Being Value",
-                },
-                ticks: {
-                    stepSize: 1,
-                },
-            },
-            y: {
-                title: {
-                    display: true,
-                    text: "Membership Degree",
-                },
-                max: 1.1,
-            },
-        },
-    };
-
     return (
-        <div className="physical-well-being-container">
-            <h1>Physical Well-Being Fuzzy System</h1>
-            <div className="slider-container">
-                <label htmlFor="physicalWellBeing">
-                    Physical Well-Being Value: {physicalWellBeing}
-                </label>
-                <input
-                    type="range"
-                    id="physicalWellBeing"
-                    min="0"
-                    max="10"
-                    step="0.1"
-                    value={physicalWellBeing}
-                    onChange={(e) => setPhysicalWellBeing(Number(e.target.value))}
-                />
-            </div>
-            <div className="chart-container">
-                <Line data={chartData} options={chartOptions} />
-            </div>
-        </div>
+        <Card title={<Title level={2}>Physical Well-Being Fuzzy System</Title>}>
+            <Text>Physical Well-Being Value: {physicalWellBeing}</Text>
+            <Slider
+                min={0}
+                max={10}
+                step={0.1}
+                value={physicalWellBeing}
+                onChange={setPhysicalWellBeing}
+            />
+            <ResponsiveContainer width="100%" height={400}>
+                <LineChart data={membershipData}>
+                    <CartesianGrid strokeDasharray="3 3"/>
+                    <XAxis
+                        dataKey="x"
+                        label={{value: "Physical Well-Being Value", position: "insideBottom", offset: -5}}
+                    />
+                    <YAxis
+                        label={{value: "Membership Degree", angle: -90, position: "insideLeft"}}
+                        domain={[0, 1.1]}
+                    />
+                    <Tooltip/>
+                    <Legend/>
+                    <Line type="monotone" dataKey="sick" name="Sick" stroke="#ff6384" dot={false}/>
+                    <Line type="monotone" dataKey="neutral" name="Neutral" stroke="#36a2eb" dot={false}/>
+                    <Line type="monotone" dataKey="healthy" name="Healthy" stroke="#4bc0c0" dot={false}/>
+                    <Line type="monotone" dataKey="current" name={`Current Value: ${physicalWellBeing}`}
+                          stroke="#ffcd56" dot={{r: 5}}/>
+                </LineChart>
+            </ResponsiveContainer>
+        </Card>
     );
 };
 
