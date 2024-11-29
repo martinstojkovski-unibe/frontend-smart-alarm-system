@@ -333,10 +333,10 @@ function Weather() {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
               dataKey="wind_speed" 
-              label={{ value: 'Wind Speed', position: 'insideBottom', offset: -5 }}  
-              domain={['auto', 'auto']}
+              label={{ value: 'Wind Speed', position: 'insideBottom' }}  
+              // domain={['auto', 'auto']}
               scale="linear"  
-              tickFormatter={(tick) => `${tick}`}  />
+               />
             <YAxis label={{ value: 'Membership', angle: -90, position: 'insideLeft' }} />
             <Tooltip />
             <Legend />

@@ -44,53 +44,46 @@ function App() {
       key: '1',
       icon:<AppstoreOutlined />,
       label: 'Dashboard',
-      description: '',
+      description: 'Overview of the Fuzzy System',
       target:'/',
     },
     {
       key: '2',
       icon: <StarOutlined />,
       label: 'Sleep Quality',
-      description: '',
+      description: 'Fuzzy Variables & Membership Functions of Sleep Quality',
       target:'/sleep-quality'
     },
     {
       key: '3',
       icon: <HourglassOutlined />,
       label: 'Fatigue Level',
-      description: '',
+      description: 'Fuzzy Variables & Membership Functions of Fatigue Level',
       target:'/fatigue-level'
     },
     {
       key: '4',
       icon: <ScheduleOutlined />,
       label: 'Schedule Importance',
-      description: '',
+      description: 'Fuzzy Variables & Membership Functions of Schedule Importance',
       target:'/schedule-importance'
-    },
+    },   
     {
       key: '5',
-      icon: <SoundOutlined />,
-      label: 'Wakeup Method',
-      description: '',
-      target:'/wakeup-method'
-    },
-    {
-      key: '6',
       icon: <UserOutlined />,
       label: 'Physical Well-being',
-      description: '',
+      description: 'Fuzzy Variables & Membership Functions of Physical Well-being',
       target:'/physical-well-being'
     },
     {
-      key: '7',
+      key: '6',
       icon: <SunOutlined />,
       label: 'Weather',
       description: 'Fuzzy Variables & Membership Functions of Weather',
       target:'/weather'
     },
     {
-      key: '8',
+      key: '7',
       icon: <SettingOutlined />,
       label: 'Settings',
       description: 'Input Your Static Variables To The System',
@@ -105,6 +98,14 @@ function App() {
     if (target) {
       navigate(target);
     }
+  };
+
+  const [selectedMethod, setSelectedMethod] = useState<string>('Sound');
+
+  const methods = ['Sound', 'Lights', 'Vibrations'];
+
+  const handleSelectMethod = (method: string) => {
+      setSelectedMethod(method);
   };
 
   return (
@@ -131,7 +132,6 @@ function App() {
           <Route path="/physical-well-being"  element={<PhysicalWellBeing />}/>
           <Route path="/weather"  element={<Weather/>}/>
           <Route path="/sleep-quality"  element={<SleepQuality/>}/>
-          <Route path="/wakeup-method"  element={<WakeupMethod/>}/>
           <Route path="/schedule-importance"  element={<ScheduleImportance/>}/>
           <Route path="/fatigue-level"  element={<FatigueLevel/>}/>
           <Route path="/settings"  element={<Settings/>}/>
