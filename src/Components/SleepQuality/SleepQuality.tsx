@@ -1,11 +1,55 @@
-import React, { useState } from "react";
-import { Card, Slider, Typography, Row, Col } from "antd";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import React, { useEffect, useState } from 'react';
+import { Chart } from 'react-google-charts';
+import './SleepQuality.css';
 
-const { Title, Text } = Typography;
+interface SleepData {
+    ambientNoise: number;
+    bedQuality: number;
+    stressLevel: number;
+    sleepQuality: number;
+    morningEnergy: number;
+}
 
 const SleepQuality: React.FC = () => {
-    const [sleepQuality, setSleepQuality] = useState(5);
+    const [sleepData, setSleepData] = useState<SleepData>({
+        ambientNoise: 5,
+        bedQuality: 5,
+        stressLevel: 5,
+        sleepQuality: 5,
+        morningEnergy: 5,
+    });
+    const [wakeTimeAdjustment, setWakeTimeAdjustment] = useState<number>(0);
+
+    useEffect(() => {
+        calculateWakeTimeAdjustment();
+    }, [sleepData]);
+
+    const calculateWakeTimeAdjustment = () => {
+        const { sleepQuality, morningEnergy } = sleepData;
+        let adjustment = 0;
+
+        if (sleepQuality < 3 && morningEnergy < 3) {
+            adjustment = -15;
+        } else if (sleepQuality > 7 && morningEnergy > 7) {
+            adjustment = 15;
+        }
+
+        setWakeTimeAdjustment(adjustment);
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setSleepData((prev) => ({ ...prev, [name]: parseFloat(value) }));
+    };
+
+    const chartData = [
+        ['Factor', 'Value'],
+        ['Ambient Noise', sleepData.ambientNoise],
+        ['Bed Quality', sleepData.bedQuality],
+        ['Stress Level', sleepData.stressLevel],
+        ['Sleep Quality', sleepData.sleepQuality],
+        ['Morning Energy', sleepData.morningEnergy],
+    ];
 
     const formatLabel = (key: string) => {
         return key
@@ -14,47 +58,70 @@ const SleepQuality: React.FC = () => {
             .join(' ');
     };
 
-    const membershipData = Array.from({ length: 101 }, (_, i) => {
-        const x = i / 10;
-        return {
-            x,
-            sick: Math.max(0, 1 - x / 3),
-            neutral: x <= 3 ? 0 : x <= 5 ? (x - 3) / 2 : Math.max(0, (7 - x) / 2),
-            healthy: x <= 5 ? 0 : Math.min(1, (x - 5) / 5),
-            current: Math.abs(x - sleepQuality) < 0.1 ? 1 : 0,
-        };
-    });
-
     return (
-        <Card title={<Title level={2}>Sleep Quality Fuzzy System</Title>}>
-            <Row gutter={[16, 16]}>
-                <Col span={24}>
-                    <Text>Sleep Quality Value: {sleepQuality}</Text>
-                    <Slider
-                        min={0}
-                        max={10}
-                        step={0.1}
-                        value={sleepQuality}
-                        onChange={setSleepQuality}
+        <div className="sleep-quality">
+            <h1>Sleep Quality Fuzzy System</h1>
+            <div className="input-section">
+                {Object.entries(sleepData).map(([key, value]) => (
+                    <div key={key} className="input-group">
+                        <label htmlFor={key}>{formatLabel(key)}:</label>
+                        <input
+                            type="range"
+                            id={key}
+                            name={key}
+                            min="0"
+                            max="10"
+                            step="0.1"
+                            value={value}
+                            onChange={handleInputChange}
+                        />
+                        <span>{value.toFixed(1)}</span>
+                    </div>
+                ))}
+            </div>
+            <div className="chart-section">
+                <div className="chart-container">
+                    <Chart
+                        width={'100%'}
+                        height={'100%'}
+                        chartType="ColumnChart"
+                        loader={<div>Loading Chart...</div>}
+                        data={chartData}
+                        options={{
+                            title: 'Sleep Factors',
+                            chartArea: { width: '70%', height: '70%' },
+                            hAxis: {
+                                title: 'Factor',
+                                slantedText: true,
+                                slantedTextAngle: 45,
+                            },
+                            vAxis: { title: 'Value', minValue: 0, maxValue: 10 },
+                            legend: { position: 'none' },
+                            bar: { groupWidth: '80%' },
+                            fontSize: 14,
+                        }}
                     />
-                </Col>
-                <Col span={24}>
-                    <ResponsiveContainer width="100%" height={400}>
-                        <LineChart data={membershipData}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="x" label={{ value: "Sleep Quality Value", position: "insideBottom", offset: -5 }} />
-                            <YAxis label={{ value: "Membership Degree", angle: -90, position: "insideLeft" }} />
-                            <Tooltip />
-                            <Legend />
-                            <Line type="monotone" dataKey="sick" name="Sick" stroke="#ff6384" dot={false} />
-                            <Line type="monotone" dataKey="neutral" name="Neutral" stroke="#36a2eb" dot={false} />
-                            <Line type="monotone" dataKey="healthy" name="Healthy" stroke="#4bc0c0" dot={false} />
-                            <Line type="monotone" dataKey="current" name={`Current Value: ${sleepQuality}`} stroke="#ffcd56" dot={{ r: 5 }} />
-                        </LineChart>
-                    </ResponsiveContainer>
-                </Col>
-            </Row>
-        </Card>
+                </div>
+            </div>
+            <div className="result-section">
+                <h2>Wake Time Adjustment</h2>
+                <p
+                    className={`adjustment ${
+                        wakeTimeAdjustment < 0
+                            ? 'delay'
+                            : wakeTimeAdjustment > 0
+                                ? 'advance'
+                                : 'no-change'
+                    }`}
+                >
+                    {wakeTimeAdjustment === 0
+                        ? 'No Change'
+                        : `${Math.abs(wakeTimeAdjustment)} minutes ${
+                            wakeTimeAdjustment < 0 ? 'later' : 'earlier'
+                        }`}
+                </p>
+            </div>
+        </div>
     );
 };
 
