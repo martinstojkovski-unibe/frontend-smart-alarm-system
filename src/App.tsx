@@ -4,7 +4,6 @@ import {
   SunOutlined,
   AppstoreOutlined,
   ScheduleOutlined,
-  SoundOutlined,
   UserOutlined,
   HourglassOutlined,
   StarOutlined,
@@ -14,7 +13,6 @@ import {  Layout, Menu, Typography } from 'antd';
 import Dashboard from './Components/Dashboard/Dashboard';
 import Weather from './Components/Weather/Weather';
 import SleepQuality from './Components/SleepQuality/SleepQuality';
-import WakeupMethod from './Components/WakeupMethod/WakeupMethod';
 import ScheduleImportance from './Components/ScheduleImportance/ScheduleImportance';
 import FatigueLevel from './Components/FatigueLevel/FatigueLevel';
 import Settings from './Components/Settings/Settings';

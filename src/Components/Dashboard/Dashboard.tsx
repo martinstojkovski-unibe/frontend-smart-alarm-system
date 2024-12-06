@@ -1,6 +1,7 @@
 import React ,{useEffect, useState} from 'react';
-import {  Layout, theme ,Slider, SliderSingleProps, Col, Row, Button, Card,Typography,Avatar,Form ,InputNumber} from 'antd';
+import {  Layout, theme ,Slider, SliderSingleProps, Col, Row, Button, Card,Typography,Avatar,Form ,InputNumber,message} from 'antd';
 import { useGeolocated } from "react-geolocated";
+import { getSettings, updateSettings } from '../../Services/ApiService';
 
 
 const { Title } = Typography;
@@ -16,16 +17,20 @@ const validateMessages = {
   required: '${label} is required!',
 };
 
-function Dashboard() {
-    const [form] = Form.useForm();
+const user_id = localStorage.getItem('user_id');
 
-   const [weatherdata,setWeatherData]=useState({text:'',image:'',temperature:''})
+
+function Dashboard() {
+
+    const [form] = Form.useForm();
+    const [messageApi, contextHolder] = message.useMessage();
+
+    const [weatherdata,setWeatherData]=useState({text:'',image:'',temperature:0.0})
 
     const {
         token: { colorBgContainer, borderRadiusLG },
       } = theme.useToken();
 
-    const [data, setData] = useState({sleep_quality:0,schedule_importance:0,mood:0,weather:0,preferred_wake_method:0});
 
     const { coords, isGeolocationAvailable, isGeolocationEnabled } =
     useGeolocated({
@@ -42,6 +47,15 @@ function Dashboard() {
         .then(data => {
           if(data !== undefined){
             setWeatherData({text: data?.current?.condition?.text,image:data?.current?.condition?.icon,temperature:data?.current?.feelslike_c})
+            if(user_id){
+              updateSettings({temperature:data?.current?.feelslike_c,wind_speed:data?.current?.wind_kph,humidity:data?.current?.humidity}).then(
+                (responseData)=>{
+                  messageApi.open({
+                    type: 'success',
+                    content: 'Weather Data Updated Successfully',
+                  });
+                })                
+            }
           }  
         })
       }
@@ -50,33 +64,31 @@ function Dashboard() {
 
     console.log(weatherdata)
 
-    const handleChange = (name:string, value:number) => {
-      setData({ ...data, [name]: value }); 
-     };
 
-     const submitValues = async ()=>{
-      try {
-        const response = await fetch("http://127.0.0.1:8000/hello/alarm/",{
-          method:"POST",
-          headers:{
-            'Content-Type':'application/json'
-
-          },
-          body:JSON.stringify(data)
-        })
-  
-        const responseData = await response.json();
-        console.log(responseData);
-  
-      } catch (error) {
-        console.log(error)
+     const submitValues = async (val: any)=>{
+      if (user_id){
+        const responseData = await updateSettings(val.user)
+        if (responseData)
+          messageApi.open({
+            type: 'success',
+            content: 'Settings Updated Successfully',
+          });
       }
-     
     }
+
+    useEffect(() =>  {
+      getSettings().then((responseData)=>{
+        if(responseData)
+          form.setFieldsValue({user:responseData})
+  
+       });
+    }, [form])
+    
     
  
     return(
       <Col>
+      {contextHolder}
         <Row>
           <Col span={12}>
             <Row>
@@ -130,13 +142,13 @@ function Dashboard() {
                 <Form
                   layout={'vertical'}
                   form={form}
-                  onFinish={()=>{}}
+                  onFinish={(val)=>submitValues(val)}
                   validateMessages={validateMessages}
                 >
                   <Form.Item name={['user', 'last_night_sleep']} label="Last Night Sleep" rules={[{ required:true }]}>
                     <InputNumber suffix="Hours" style={{ width: '100%' }} placeholder="Last Night Sleep" min={0} max={18}/>
                   </Form.Item>
-                  <Form.Item name={['user', 'meeting']} label="Meeting Schedule" rules={[{ required:true }]}>
+                  <Form.Item name={['user', 'meetings']} label="Meeting Schedule" rules={[{ required:true }]}>
                     <InputNumber suffix="Minutes" style={{ width: '100%' }} placeholder="Meeting Schedule in Minutes (Max : 480 Minutes)" min={0} max={480}/>
                   </Form.Item>
                   <Form.Item name={['user', 'urgent_tasks']} label="Urgent Tasks" rules={[{ required:true }]}>

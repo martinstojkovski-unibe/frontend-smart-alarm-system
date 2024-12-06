@@ -1,60 +1,83 @@
-import React, {useState} from "react";
-import {Card, Slider, Typography} from "antd";
-import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
+import React, {useEffect, useState} from "react";
+import {Row,Col,theme,Card} from "antd";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine } from 'recharts';
+import { getSettings } from "../../Services/ApiService";
 
-const {Title, Text} = Typography;
+
+const dataPWB = [
+    { pwb: 0, sick: 1, neutral: 0, healthy: 0 },
+    { pwb: 3, sick: 0.25, neutral: 0, healthy: 0 },
+    { pwb: 4, sick: 0, neutral: 0.5, healthy: 0 },  
+    { pwb: 5, sick: 0, neutral: 1, healthy: 0 },  
+    { pwb: 6, sick: 0, neutral: 0.5, healthy: 0 },  
+    { pwb: 7, sick: 0, neutral: 0, healthy: 0.25 },  
+    { pwb: 10, sick: 0, neutral: 0, healthy: 1 },  
+  ];
+
 
 const PhysicalWellBeing: React.FC = () => {
-    const [physicalWellBeing, setPhysicalWellBeing] = useState(5);
 
-    // Fuzzy membership functions for Physical Well-Being
-    const sick = (x: number) => (x <= 3 ? 1 : x <= 4 ? (4 - x) / 1 : 0);
-    const neutral = (x: number) =>
-        x <= 3 ? 0 : x <= 6 ? (x - 3) / 3 : x <= 7 ? (7 - x) / 1 : 0;
-    const healthy = (x: number) => (x <= 6 ? 0 : x <= 10 ? (x - 6) / 4 : 1);
+    const [physical_well_being,setPhysical_well_being]=useState('null');
 
-    const membershipData = Array.from({length: 101}, (_, i) => {
-        const x = i / 10; // Increment by 0.1
-        return {
-            x,
-            sick: sick(x),
-            neutral: neutral(x),
-            healthy: healthy(x),
-            current: Math.abs(x - physicalWellBeing) < 0.1 ? 1 : null,
-        };
-    });
+    useEffect(() =>  {
+        getSettings().then((responseData)=>{
+          if(responseData)
+           setPhysical_well_being(responseData.physical_well_being)
+         });
+    }, [])
+
+    const {
+        token: { colorBgContainer, borderRadiusLG },
+      } = theme.useToken();
 
     return (
-        <Card title={<Title level={2}>Physical Well-Being Fuzzy System</Title>}>
-            <Text>Physical Well-Being Value: {physicalWellBeing}</Text>
-            <Slider
-                min={0}
-                max={10}
-                step={0.1}
-                value={physicalWellBeing}
-                onChange={setPhysicalWellBeing}
-            />
-            <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={membershipData}>
-                    <CartesianGrid strokeDasharray="3 3"/>
-                    <XAxis
-                        dataKey="x"
-                        label={{value: "Physical Well-Being Value", position: "insideBottom", offset: -5}}
-                    />
-                    <YAxis
-                        label={{value: "Membership Degree", angle: -90, position: "insideLeft"}}
-                        domain={[0, 1.1]}
-                    />
-                    <Tooltip/>
-                    <Legend/>
-                    <Line type="monotone" dataKey="sick" name="Sick" stroke="#ff6384" dot={false}/>
-                    <Line type="monotone" dataKey="neutral" name="Neutral" stroke="#36a2eb" dot={false}/>
-                    <Line type="monotone" dataKey="healthy" name="Healthy" stroke="#4bc0c0" dot={false}/>
-                    <Line type="monotone" dataKey="current" name={`Current Value: ${physicalWellBeing}`}
-                          stroke="#ffcd56" dot={{r: 5}}/>
-                </LineChart>
-            </ResponsiveContainer>
-        </Card>
+        <div>
+            <Row>
+                <Col span={12} >
+                    <Card
+                        title={'Membership Function for Physical Well-being'}
+                        style={{
+                            margin: '24px 16px',
+                            minHeight: 280,
+                            background: colorBgContainer,
+                            borderRadius: borderRadiusLG,
+                        }}
+                    >
+                        <AreaChart
+                            width={500}
+                            height={400}
+                            data={dataPWB}
+                            margin={{ top: 20, right: 0, left: 0, bottom: 20 }}
+                            >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis 
+                            dataKey="pwb" 
+                            label={{ value: 'Physical Well Being', position: 'insideBottom', offset: -5 }}  
+                            domain={['auto', 'auto']}
+                            scale="linear"  
+                            type='number'
+                            tickFormatter={(tick) => `${tick}`}  />
+                            <YAxis label={{ value: 'Membership', angle: -90, position: 'insideLeft' }} />
+                            <Tooltip />
+                            <Legend />
+                            <Area type="linear" dataKey="sick" stroke="#8884d8" fill="#8884d8" fillOpacity={0.3} />
+                            <Area type="linear" dataKey="neutral" stroke="#82ca9d" fill="#82ca9d" fillOpacity={0.3} />
+                            <Area type="linear" dataKey="healthy" stroke="#ffc658" fill="#ffc658" fillOpacity={0.3} />
+
+                            {physical_well_being !== null && (
+                            <ReferenceLine 
+                                x={physical_well_being} 
+                                stroke="red" 
+                                strokeWidth="2" 
+                                label={{ value: `Current: ${physical_well_being}`, position: 'top', fill: 'red', fontSize:13, offset: 5 }} 
+                            />
+                            )}
+
+                        </AreaChart>
+                    </Card>
+                </Col>
+            </Row>
+            </div>
     );
 };
 
