@@ -38,17 +38,8 @@ const FatigueLevel: React.FC = () => {
   }));
 
   return (
-      <Card title={<Title level={2}>Fatigue Level Analysis</Title>}>
-        <Card title="Age">
-          <Slider
-              min={0}
-              max={18}
-              value={age}
-              onChange={setAge}
-              marks={{ 0: "0", 6: "6", 12: "12", 18: "18" }}
-          />
-          <Typography.Text>Age: {age} years</Typography.Text>
-        </Card>
+      <Card>
+        
 
         <Card title={`Last Night Sleep Membership Functions (${age >= 12 ? "12 y.o. and Up" : "12 y.o. and Below"})`}>
           <ResponsiveContainer width="100%" height={400}>
