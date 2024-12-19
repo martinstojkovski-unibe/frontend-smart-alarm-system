@@ -4,6 +4,7 @@ import { useGeolocated } from "react-geolocated";
 import { getSettings, updateSettings } from '../../Services/ApiService';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ReferenceLine } from 'recharts';
 import { FieldTimeOutlined, SwapOutlined } from '@ant-design/icons';
+import Column from 'antd/es/table/Column';
 
 
 
@@ -315,14 +316,17 @@ function Dashboard() {
     });
 
     useEffect(()=>{
-      const adjustment =new Date (new Date(new Date().setHours(new Date().getHours() + 7)).setMinutes(new Date().getMinutes()+Math.round(currentData.current_adjustment)) )
-      const alarmm = new Date(adjustment).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric'})
-      setAlarm(alarmm)
+      if(currentData.current_adjustment !== 120 && user_id){
+        const adjustment =new Date (new Date(new Date().setHours(new Date().getHours() + 7)).setMinutes(new Date().getMinutes()+Math.round(currentData.current_adjustment)) )
+        const alarmm = new Date(adjustment).toLocaleString('en-US', { hour: 'numeric', minute: 'numeric'})
+        setAlarm(alarmm)
+      }
+     
     },[currentData.current_adjustment])
 
     useEffect(()=>{
       if(coords){
-        fetch(`http://api.weatherapi.com/v1/current.json?key=3856be57b9a24d88895140604242211&q=${coords?.latitude},${coords?.longitude}&aqi=no`)
+        fetch(`https://api.weatherapi.com/v1/current.json?key=3856be57b9a24d88895140604242211&q=${coords?.latitude},${coords?.longitude}&aqi=no`)
         .then(response => response.json())
         .then(data => {
           if(data !== undefined){
@@ -362,15 +366,21 @@ function Dashboard() {
     }
 
     useEffect(() =>  {
-      getSettings().then((responseData)=>{
-        if(responseData)
-          form.setFieldsValue({user:responseData})
-        setCurrentData(
-          {
-            wake_time_adjustment:responseData.fuzzy_outputs.map((e:any) => {return {output:e.wake_time_adjustment,timeStamp: new Date(e.timestamp).toLocaleTimeString('en-US', { month:'short',day:'numeric',hour: 'numeric', minute: 'numeric' })}}),
-            current_adjustment:responseData.fuzzy_outputs[responseData.fuzzy_outputs.length -1].wake_time_adjustment
-          })
-       });
+      if(user_id){
+        getSettings().then((responseData)=>{
+          if(responseData)
+            form.setFieldsValue({user:responseData})
+          if(responseData.fuzzy_outputs.length !==0){
+            setCurrentData(
+              {
+                wake_time_adjustment:responseData.fuzzy_outputs.map((e:any) => {return {output:e.wake_time_adjustment,timeStamp: new Date(e.timestamp).toLocaleTimeString('en-US', { month:'short',day:'numeric',hour: 'numeric', minute: 'numeric' })}}),
+                current_adjustment:responseData.fuzzy_outputs[responseData.fuzzy_outputs.length -1].wake_time_adjustment
+              })
+          }
+          
+         });
+      }
+      
     }, [form])
     
     
@@ -392,9 +402,15 @@ function Dashboard() {
                     style={{margin:'24px 16px',minHeight: 200}}
                     >   
                       <div style={{display:'flex',justifyContent:'center',alignItems:'center'}}>
-                        <Title type='secondary' level={1}>
-                          {alarm?alarm:''}
-                        </Title>
+                        <Col>
+                          <Title type='secondary' level={1}>
+                            {alarm?alarm:''}
+                          </Title>
+                          <Title type='secondary' level={5}>
+                            {currentData.current_adjustment!==120?`Current Wake Time Adjustment : ${Math.round(currentData.current_adjustment)} Minutes`:''}
+                          </Title>
+                        </Col>
+                        
                       </div>
                     </Card>
                 </Col>
